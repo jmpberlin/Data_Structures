@@ -3,6 +3,9 @@ package main
 // HOMEWORK:
 // universal Hash function verstehen und einbauen
 // include generics=> initiate hashtable for different type combinations ?
+
+// WICHTIG: MAKE DIFFERENT GO ROUTINES WORK ON THE SAME HASH TABLE AND SYNCHRONIZE THE METHODS
+
 // Mutex, Waitgroup, Sync, go Channels to synchronize
 // instantiate hashTable function || initialize?
 // QUESTION: Linked-List -> Am I doing this correctly?
@@ -22,6 +25,9 @@ type value struct {
 
 type hashTable []bucket
 
+// MAKE BUCKET A STRUCT WITH ONLY A POINTER TO THE FIRST BUCKET NODE
+// WHEN ADDING A NODE WE JUST CHANGE THE HEAD POINTER AND PUT THE OLD ONE IN THE NEW "NEXT"_VALUE
+//
 type bucket []*bucketNode
 
 type bucketNode struct {
