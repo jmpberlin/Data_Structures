@@ -96,28 +96,7 @@ func (ht hashTable) delete(k key) {
 
 // BUCKET insert
 func (b *bucket) insert(k key, v value) {
-	// check if the key already exists in the bucketNode
-	bn := b.lookup(k)
-	// // if it exists update the node with new value
-	if bn != nil {
-		bn.val = v
-	} else {
-		newNode := bucketNode{
-			key: k,
-			val: v,
-		}
-		// prepend the node to the beginning of the bucket if the bucket is not empty
-		if len(*b) != 0 {
-			bucketValue := *b
-			newNode.nextNode = bucketValue[0]
-			*b = append(bucket{&newNode}, *b...)
-		} else {
-			// append the node to the bucket if it will be the first node
-			newNode.end = true
-			newNode.nextNode = nil
-			*b = append(*b, &newNode)
-		}
-	}
+
 }
 
 // BUCKET lookup
