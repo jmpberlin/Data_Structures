@@ -8,9 +8,6 @@ package main
 
 // Mutex, Waitgroup, Sync, go Channels to synchronize
 // instantiate hashTable function || initialize?
-// QUESTION: Linked-List -> Am I doing this correctly?
-// how does removing from a linked list work?
-// slicing something out of an array seems costly and not to be the correct way
 
 import (
 	"fmt"
@@ -25,15 +22,13 @@ type value struct {
 
 type hashTable []bucket
 
-// MAKE BUCKET A STRUCT WITH ONLY A POINTER TO THE FIRST BUCKET NODE
-// WHEN ADDING A NODE WE JUST CHANGE THE HEAD POINTER AND PUT THE OLD ONE IN THE NEW "NEXT"_VALUE
-//
-type bucket []*bucketNode
+type bucket struct {
+	head *bucketNode
+}
 
 type bucketNode struct {
 	key      key
 	val      value
-	end      bool
 	nextNode *bucketNode
 }
 
@@ -49,10 +44,7 @@ func instantiateHashTable() hashTable {
 func (h hashTable) print() {
 	for index, val := range h {
 		fmt.Println(index, ": \t", val)
-		for i, e := range val {
-			fmt.Print(i, ":\t ")
-			fmt.Print(*e, "\n ")
-		}
+
 	}
 }
 
@@ -71,99 +63,150 @@ func hash(k key) int {
 func (ht hashTable) insert(k key, v value) {
 	i := hash(k)
 	ht[i].insert(k, v)
-
 }
 
 // HASHTABLE lookup
 
-func (ht hashTable) lookup(k key) (bool, value) {
+func (ht hashTable) lookup(input string) (bool, value) {
+	k := key(input)
 	i := hash(k)
-	bn := ht[i].lookup(k)
-	if bn != nil {
-		return true, bn.val
+	node := ht[i].lookup(k)
+	if node != nil {
+		return true, node.val
 	}
 	return false, value{}
 }
 
 // HASHTABLE delete
 
-func (ht hashTable) delete(k key) {
+func (ht hashTable) delete(input string) bool {
+	k := key(input)
 	i := hash(k)
-	ht[i].delete(k)
+	return ht[i].delete(k)
 }
 
 // BUCKET
 
 // BUCKET insert
 func (b *bucket) insert(k key, v value) {
-
+	currentFirstNode := b.head
+	nodeToBeInserted := bucketNode{
+		key:      k,
+		val:      v,
+		nextNode: currentFirstNode,
+	}
+	b.head = &nodeToBeInserted
 }
 
 // BUCKET lookup
 
 func (b *bucket) lookup(k key) *bucketNode {
-	for _, node := range *b {
-		if node.key == k {
-			return node
+	keyNotFound := &bucketNode{}
+	if b.head == nil {
+		return keyNotFound
+	}
+	currentNode := *b.head
+	for {
+		if currentNode.key == k {
+			return &currentNode
+		} else if currentNode.nextNode == nil {
+			return keyNotFound
+		} else {
+			currentNode = *currentNode.nextNode
 		}
 	}
-	return nil
 }
 
 // BUCKET delete
-func (b *bucket) delete(k key) {
-	// TO-DO: IMPORTANT!
+
+// A BIT VERBOSE :
+// => How can I include the first manual steps into the loop?
+// 3 steps: bucket empty, key found, nextNode empty
+// add an end field in the bucketNode struct?
+// maybe makes things easier
+
+func (b *bucket) delete(k key) bool {
+	noDeleteableKeyFound := false
+	keyDeleted := true
+	if b.head == nil {
+		return noDeleteableKeyFound
+	}
+	if b.head.key == k {
+		b.head = b.head.nextNode
+		return keyDeleted
+	}
+	if b.head.nextNode == nil {
+		return noDeleteableKeyFound
+	}
+	currentNode := b.head
+	nextNode := b.head.nextNode
+	for {
+		if nextNode.key == k {
+			currentNode.nextNode = nextNode.nextNode
+			return keyDeleted
+		}
+		if nextNode.nextNode == nil {
+			return noDeleteableKeyFound
+		}
+		currentNode = nextNode
+		nextNode = nextNode.nextNode
+	}
 
 }
 func main() {
 	ht := instantiateHashTable()
 	k1 := key("P((")
 	v1 := value{
-		firstName: "P((annes",
+		firstName: "Pannes",
 		lastName:  "Polte",
 	}
 	k2 := key("PP")
 	v2 := value{
-		firstName: "PPPatrick",
-		lastName:  "Star",
+		firstName: "Harry",
+		lastName:  "Harold",
 	}
 	k3 := key("(P(")
 	v3 := value{
-		firstName: "(P(",
-		lastName:  "another link",
+		firstName: "Gustav",
+		lastName:  "Gans",
 	}
 
 	k4 := key("((P")
 	v4 := value{
-		firstName: "((P",
-		lastName:  "yet another link",
+		firstName: "Kevin",
+		lastName:  "Kobold",
+	}
+	k5 := key("Johannes")
+	v5 := value{
+		firstName: "Joe",
+		lastName:  "von P",
 	}
 
+	//  All the same hash code: 60
 	ht.insert(k1, v1)
 	ht.insert(k2, v2)
 	ht.insert(k3, v3)
 	ht.insert(k4, v4)
-	if ok, person1 := ht.lookup("PP"); ok {
-		fmt.Println("found person \t\t1 \t", person1)
-	}
-	if ok, person2 := ht.lookup("((P"); ok {
-		fmt.Println("found person \t\t2: \t", person2)
-	}
-	if ok, person3 := ht.lookup("HANNES"); ok {
-		fmt.Println("found person \t\t3: \t", person3)
-	} else {
-		fmt.Println("did not find person \t3: \t", person3)
-	}
 
-	// v1 = value{
-	// 	firstName: "TEST TEST TEST",
-	// 	lastName:  "POLTE",
-	// }
+	// different Hash code
+	ht.insert(k5, v5)
 
-	// ht.insert(k1, v1)
-	// if ok, person1 := ht.lookup(k1); ok {
-	// 	fmt.Println("found person \t\t1 \t", person1)
-	// }
+	fmt.Println("deleted k2?", ht.delete(string(k2)))
+	fmt.Println("deleted k4?", ht.delete(string(k4)))
+	fmt.Println("deleted k3?", ht.delete(string(k3)))
+	fmt.Println("deleted k3?", ht.delete(string(k3)))
+	fmt.Println("deleted k3?", ht.delete(string(k3)))
+	fmt.Println("deleted k3?", ht.delete(string(k3)))
+
+	fmt.Println("deleted k2?", ht.delete(string(k2)))
+	fmt.Println("deleted k2?", ht.delete(string(k2)))
+	fmt.Println("deleted k1?", ht.delete(string(k1)))
+	fmt.Println("deleted k1?", ht.delete(string(k1)))
+	fmt.Println("deleted asfasd?", ht.delete("asafaf"))
+
+	if ok, person1 := ht.lookup(string(k5)); ok {
+		fmt.Printf("found person %+v under key: %s \n", person1, k1)
+	}
 	ht.print()
 
 }
