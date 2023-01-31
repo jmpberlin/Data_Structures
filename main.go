@@ -11,6 +11,7 @@ package main
 
 import (
 	"fmt"
+	trie "hash_table_diy/trie"
 )
 
 type key string
@@ -41,10 +42,21 @@ func instantiateHashTable() hashTable {
 }
 
 // Print the HashTable somewhat graphically
-func (h hashTable) print() {
+func (h hashTable) printTable() {
 	for index, val := range h {
 		fmt.Println(index, ": \t", val)
 
+	}
+}
+
+// Print a specific Bucket from a hash
+func (ht hashTable) printBucket(s string) {
+	i := hash(key(s))
+	bucket := ht[i]
+	bucketNode := bucket.head
+	for bucketNode != nil {
+		fmt.Println(bucketNode)
+		bucketNode = bucketNode.nextNode
 	}
 }
 
@@ -89,13 +101,19 @@ func (ht hashTable) delete(input string) bool {
 
 // BUCKET insert
 func (b *bucket) insert(k key, v value) {
-	currentFirstNode := b.head
-	nodeToBeInserted := bucketNode{
-		key:      k,
-		val:      v,
-		nextNode: currentFirstNode,
+	nodeToUpdate := b.lookup(k)
+
+	if len(nodeToUpdate.key) == 0 {
+		currentFirstNode := b.head
+		nodeToBeInserted := bucketNode{
+			key:      k,
+			val:      v,
+			nextNode: currentFirstNode,
+		}
+		b.head = &nodeToBeInserted
+	} else {
+		nodeToUpdate.val = v
 	}
-	b.head = &nodeToBeInserted
 }
 
 // BUCKET lookup
@@ -118,12 +136,6 @@ func (b *bucket) lookup(k key) *bucketNode {
 }
 
 // BUCKET delete
-
-// A BIT VERBOSE :
-// => How can I include the first manual steps into the loop?
-// 3 steps: bucket empty, key found, nextNode empty
-// add an end field in the bucketNode struct?
-// maybe makes things easier
 
 func (b *bucket) delete(k key) bool {
 	noDeleteableKeyFound := false
@@ -151,62 +163,55 @@ func (b *bucket) delete(k key) bool {
 		currentNode = nextNode
 		nextNode = nextNode.nextNode
 	}
-
 }
 func main() {
-	ht := instantiateHashTable()
-	k1 := key("P((")
-	v1 := value{
-		firstName: "Pannes",
-		lastName:  "Polte",
-	}
-	k2 := key("PP")
-	v2 := value{
-		firstName: "Harry",
-		lastName:  "Harold",
-	}
-	k3 := key("(P(")
-	v3 := value{
-		firstName: "Gustav",
-		lastName:  "Gans",
-	}
+	// ht := instantiateHashTable()
+	// k1 := key("P((")
+	// v1 := value{
+	// 	firstName: "Pannes",
+	// 	lastName:  "Polte",
+	// }
+	// k2 := key("PP")
+	// v2 := value{
+	// 	firstName: "Harry",
+	// 	lastName:  "Harold",
+	// }
+	// k3 := key("(P(")
+	// v3 := value{
+	// 	firstName: "Gustav",
+	// 	lastName:  "Gans",
+	// }
 
-	k4 := key("((P")
-	v4 := value{
-		firstName: "Kevin",
-		lastName:  "Kobold",
-	}
-	k5 := key("Johannes")
-	v5 := value{
-		firstName: "Joe",
-		lastName:  "von P",
-	}
+	// k4 := key("((P")
+	// v4 := value{
+	// 	firstName: "Kevin",
+	// 	lastName:  "Kobold",
+	// }
+	// k5 := key("Johannes")
+	// v5 := value{
+	// 	firstName: "Joe",
+	// 	lastName:  "von P",
+	// }
 
-	//  All the same hash code: 60
-	ht.insert(k1, v1)
-	ht.insert(k2, v2)
-	ht.insert(k3, v3)
-	ht.insert(k4, v4)
+	// //  All the same hash code: 60
+	// ht.insert(k1, v1)
 
-	// different Hash code
-	ht.insert(k5, v5)
+	// // different Hash code
+	// ht.insert(k5, v5)
 
-	fmt.Println("deleted k2?", ht.delete(string(k2)))
-	fmt.Println("deleted k4?", ht.delete(string(k4)))
-	fmt.Println("deleted k3?", ht.delete(string(k3)))
-	fmt.Println("deleted k3?", ht.delete(string(k3)))
-	fmt.Println("deleted k3?", ht.delete(string(k3)))
-	fmt.Println("deleted k3?", ht.delete(string(k3)))
-
-	fmt.Println("deleted k2?", ht.delete(string(k2)))
-	fmt.Println("deleted k2?", ht.delete(string(k2)))
-	fmt.Println("deleted k1?", ht.delete(string(k1)))
-	fmt.Println("deleted k1?", ht.delete(string(k1)))
-	fmt.Println("deleted asfasd?", ht.delete("asafaf"))
-
-	if ok, person1 := ht.lookup(string(k5)); ok {
-		fmt.Printf("found person %+v under key: %s \n", person1, k1)
-	}
-	ht.print()
-
+	// if ok, person1 := ht.lookup(string(k5)); ok {
+	// 	fmt.Printf("found person %+v under key: %s \n", person1, k1)
+	// }
+	// ht.printTable()
+	// ht.printBucket("((P")
+	trie := trie.New()
+	trie.Insert("ABBA")
+	trie.Insert("ABBA")
+	trie.Insert("ABBA")
+	trie.Insert("ABBA")
+	fmt.Println(trie.Lookup("ABB"))
 }
+
+// Write test functions that will input random 10.000 values into the hashtable
+// and then retrieve a random set of values again
+// gather metrics on execution time, etc.

@@ -1,0 +1,15 @@
+create a package called creatorBots
+
+the MAIN package should: 
+
+run a json api / server, that 
+handles and validates data 
+stores the data in the hashtable 
+should operate data safely 
+
+
+read concurrently 
+update, insert, etc. must be synchronized 
+
+
+Maybe everything should run in one programm? 
