@@ -62,9 +62,8 @@ func DeleteAndRemoveGarbage(currentNode, previousNode *Node, key string, i int) 
 		}
 	}
 
+	index := key[i] - 'a'
 	i++
-	index := key[i-1] - 'a'
-
 	deletionSuccessfull := DeleteAndRemoveGarbage(currentNode.Children[index], currentNode, key, i)
 
 	i--

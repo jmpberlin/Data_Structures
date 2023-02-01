@@ -9,7 +9,7 @@ type Value struct {
 	LastName  string
 }
 
-type hashTable []bucket
+type HashTable []bucket
 
 type bucket struct {
 	head *bucketNode
@@ -21,8 +21,8 @@ type bucketNode struct {
 	nextNode *bucketNode
 }
 
-func InstantiateHashTable() hashTable {
-	ht := hashTable{}
+func InstantiateHashTable() HashTable {
+	ht := HashTable{}
 	for i := 0; i < 100; i++ {
 		ht = append(ht, bucket{})
 	}
@@ -30,7 +30,7 @@ func InstantiateHashTable() hashTable {
 }
 
 // Print the HashTable somewhat graphically
-func (h hashTable) printTable() {
+func (h HashTable) printTable() {
 	for index, val := range h {
 		fmt.Println(index, ": \t", val)
 
@@ -38,7 +38,7 @@ func (h hashTable) printTable() {
 }
 
 // Print a specific Bucket from a hash
-func (ht hashTable) printBucket(s string) {
+func (ht HashTable) printBucket(s string) {
 	i := hash(Key(s))
 	bucket := ht[i]
 	bucketNode := bucket.head
@@ -60,14 +60,14 @@ func hash(k Key) int {
 // HASHTABLE
 
 // HASHTABLE insert
-func (ht hashTable) Insert(k Key, v Value) {
+func (ht HashTable) Insert(k Key, v Value) {
 	i := hash(k)
 	ht[i].insert(k, v)
 }
 
 // HASHTABLE lookup
 
-func (ht hashTable) Lookup(input string) (bool, Value) {
+func (ht HashTable) Lookup(input string) (bool, Value) {
 	k := Key(input)
 	i := hash(k)
 	node := ht[i].lookup(k)
@@ -79,7 +79,7 @@ func (ht hashTable) Lookup(input string) (bool, Value) {
 
 // HASHTABLE delete
 
-func (ht hashTable) Delete(input string) bool {
+func (ht HashTable) Delete(input string) bool {
 	k := Key(input)
 	i := hash(k)
 	return ht[i].delete(k)
