@@ -42,5 +42,16 @@ func (t *Trie) Lookup(key string) bool {
 	return currentNode.isEnd
 }
 
+func (t *Trie) Delete(key string) bool{
+
+}
 // sanitize the input.
 // get rid of everything, that is not an alphabet character
+
+// idiom from example:
+
+// waitgroup
+// routines
+// loop over the listening function
+// one routine closes the channel
+// ends the function
