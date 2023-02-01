@@ -1,3 +1,3 @@
-module hash_table_diy
+module Data_Structures
 
 go 1.19

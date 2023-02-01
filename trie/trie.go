@@ -15,7 +15,7 @@ func New() *Trie {
 }
 
 type Node struct {
-	children [alphabetSize]*Node
+	Children [alphabetSize]*Node
 	isEnd    bool
 }
 
@@ -23,10 +23,10 @@ func (t *Trie) Insert(key string) {
 	currentNode := t.Root
 	for _, e := range strings.ToLower(key) {
 		alphabetIndex := e - 'a'
-		if currentNode.children[alphabetIndex] == nil {
-			currentNode.children[alphabetIndex] = &Node{}
+		if currentNode.Children[alphabetIndex] == nil {
+			currentNode.Children[alphabetIndex] = &Node{}
 		}
-		currentNode = currentNode.children[alphabetIndex]
+		currentNode = currentNode.Children[alphabetIndex]
 	}
 	currentNode.isEnd = true
 }
@@ -34,24 +34,61 @@ func (t *Trie) Lookup(key string) bool {
 	currentNode := t.Root
 	for _, e := range strings.ToLower(key) {
 		alphabetIndex := e - 'a'
-		if currentNode.children[alphabetIndex] == nil {
+		if currentNode.Children[alphabetIndex] == nil {
 			return false
 		}
-		currentNode = currentNode.children[alphabetIndex]
+		currentNode = currentNode.Children[alphabetIndex]
 	}
 	return currentNode.isEnd
 }
 
-func (t *Trie) Delete(key string) bool{
+func (t *Trie) Delete(key string) bool {
+	lowerCaseKey := strings.ToLower(key)
+	return DeleteAndRemoveGarbage(t.Root, nil, lowerCaseKey, 0)
+}
+func DeleteAndRemoveGarbage(currentNode, previousNode *Node, key string, i int) bool {
+	if currentNode == nil {
+		return false
+	}
+
+	if i == len(key) {
+		if !currentNode.isEnd {
+			return false
+		} else {
+			currentNode.isEnd = false
+			indexOfRemovableNode := int(key[i-1] - 'a')
+			removeNodeIfEmpty(currentNode, previousNode, indexOfRemovableNode)
+			return true
+		}
+	}
+
+	i++
+	index := key[i-1] - 'a'
+
+	deletionSuccessfull := DeleteAndRemoveGarbage(currentNode.Children[index], currentNode, key, i)
+
+	i--
+
+	if previousNode == nil {
+
+		return deletionSuccessfull
+	}
+	index = key[i-1] - 'a'
+	removeNodeIfEmpty(currentNode, previousNode, int(index))
+	return deletionSuccessfull
+}
+func removeNodeIfEmpty(currentNode *Node, previousNode *Node, indexOfRemovableNode int) {
+	if currentNode.isEnd {
+		return
+	}
+	for _, e := range currentNode.Children {
+		if e != nil {
+			return
+		}
+	}
+	if previousNode == nil {
+		return
+	}
+	previousNode.Children[indexOfRemovableNode] = nil
 
 }
-// sanitize the input.
-// get rid of everything, that is not an alphabet character
-
-// idiom from example:
-
-// waitgroup
-// routines
-// loop over the listening function
-// one routine closes the channel
-// ends the function
